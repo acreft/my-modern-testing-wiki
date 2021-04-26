@@ -152,3 +152,104 @@ Los nodos del árbol admiten operaciones de Copiar, Cortar, Pegar, Eliminar, Act
 Físicamente en disco, un testplan es un fichero .jmx: cuando el tester graba el testplan JMeter genera un fichero .jmx (en la barra de título se muestra el fichero que tenemos abierto en este momento).
 
 El menú Run tiene opciones para ejecutar el testplan y parar la ejecución. Durante la ejecución de un testplan se muestran dos números (N/M) en la esquina superior derecha. N es el número de threads activos en cada momento, y M es el número total de threads que crea el testplan (más sobre threads en el apartado Como funciona JMeter).
+
+### Testplan (*.jmx)
+Físicamente un testplan es un fichero .jmx (extensión por defecto), generado con la interfaz GUI de JMeter. Internamente, los ficheros .jmx son ficheros de texto en formato XML (por lo que podemos editarlos con un editor de textos cualquiera, la interfaz GUI nos proporciona un "editor" especializado en este tipo de ficheros).
+
+Un testplan (fichero .jmx) implementa uno o varios casos de prueba. JMeter no impone ninguna restricción en cuanto a la atomicidad de los casos de prueba respecto a los ficheros .jmx, por lo que ésta es una decisión del implementador (esto es, del tester).
+
+Se puede ejecutar un testplan de dos formas: desde la línea de comando o desde la interfaz GUI.
+
+### Fichero de log
+Como casi todas las aplicaciones Java, JMeter genera un fichero de log durante su ejecución. Por defecto, el fichero de log se genera en el directorio actual desde el que se ejecuta JMeter, y con el nombre por defecto jmeter.log .
+
+Si no se desea que cada ejecución de JMeter sobreescriba el fichero de log generado en la ejecución anterior, se puede especificar que el nombre del fichero contenga la fecha y hora de la ejecución. Esto se puede hacer:
+
+O bien editando la propiedad _log_file_ de jmeter.properties, por ejemplo:
+
+```
+log_file='jmeter_'yyyyMMddHHmmss'.log'
+```
+
+O bien especificando el formato de nombre de fichero de log en la línea de comando con el modificador -j :
+
+```
+${JMETER_HOME}/bin/jmeter -j 'jmeter_'yyyyMMddHHmmss'.log'
+```
+
+### Ficheros sample result
+
+Durante la ejecución de un testplan, JMeter captura varios datos sobre todas y cada una de las peticiones realizadas por los samplers del testplan a la aplicación objetivo. Estas peticiones (y opcionalmente la respuesta a las mismas por parte de la aplicación), se pueden salvar en ficheros mientras se está ejecutando un testplan. Estos ficheros se llaman sample result, result sample, ficheros sample o simplemente ficheros result (de resultados).
+
+JMeter proporciona dos procedimientos para generar este fichero en cada ejecución:
+
+* Especificando en la línea de comando la opción -l. Por ejemplo:
+
+```
+${JMETER_HOME}/bin/jmeter -l 'jmeter_'yyyyMMddHHmmss'.csv'
+```
+(la opción -l también permite especificar el formato de hora como parte del nombre del fichero).
+
+* Especificando en un listener del testplan, un path absoluto a un fichero en el campo Filename: del listener (vía la interfaz GUI). Todos los listeners tienen un campo Filename: en su panel de control.
+
+El formato de los ficheros de sample result es o bien CSV o bien XML. El formato del fichero se establece de una de esta dos formas:
+
+* Modificando la propiedad jmeter.save.saveservice.output_format de jmeter.properties. Con esta forma se establece el formato por defecto para todos los ficheros de este tipo. Esto se puede hacer en la línea de comando sin necesidad de cambiar el fichero jmeter.properties, con el modificador -J. Por ejemplo:
+
+```
+${JMETER_HOME}/bin/jmeter -Jjmeter.save.saveservice.output_format=csv -l 'jmeter_'yyyyMMddHHmmss'.csv'
+```
+
+* En el cuadro de diálogo de configuración del listener, que se muestra haciendo click en el botón Configure... (todos los listeners tiene también un botón Configure... que al ser pulsado muestra un cuadro de diálogo en el que se pueden establecer diversas opciones de configuración del fichero especificado en Filename:).
+
+**Notas:**
+
+* JMeter no comprueba la correspondiencia entre el formato que se especifique para el fichero (CSV o XML), y la extensión que se utilice para el nombre de éste. Por tanto, es posible generar un fichero XML con extensión .csv (cuidado con esto). Normalmente se utiliza extensión .jtl cuando el formato del fichero es XML.
+
+* Las respuestas a las peticiones solo se pueden grabar en el fichero result sample si el formato de éste es XML.
+
+* En pruebas de rendimiento se desaconseja el uso del formato XML, en favor del CSV, debido a JMeter consume menos recursos para generer este último. Así mismo, se desaconseja el capturar las respuestas de la aplicación en este tipo de pruebas.
+
+* Una nuevas funcionalidades previstas para JMeter es poder guardar la información de estos ficheros (peticiones) directamente en una tabla de base de datos.
+
+Los campos de información que se capturan para cada petición son prácticamente los mismos para el formato CSV y XML. En el manual de usuario de JMeter (secciones 14.4 CSV Log format, 14.5 XML Log format 2.1 y 14.7 Sample Attributes) se explica el significado de cada uno de estos campos en ambos formatos.
+
+La equivalencia entre campos de ambos formatos es:
+```
+Campo CSV                 Atributo XML
+  ===============   ===================
+  timeStamp                    ts
+  elapsed                      t
+  label                        lb
+  responseCode                 rc
+  responseMessage              rm
+  threadName                   tn
+  dataType                     dt
+  success                      s
+  failureMessage               --
+  bytes                        by
+  grpThreads                   ng
+  allThreads                   na
+  URL                          --
+  Filename                     --
+  latency                      lt
+  encoding                     de
+  SampleCount                  sc
+  ErrorCount                   ec
+  Hostname                     hn
+  IdleTime                     it
+  Variables                    varname
+
+  ```
+### Listeners
+
+Los listeners son uno de los tipos de componentes de un tesplan. La importancia que tienen los listeners respecto a los otros tipos de componentes es que procesan las peticiones realizadas a la aplicación objetivo por los samplers del testplan, y muestran el resultado del procesamiento de diferentes formas según el tipo de listener de que se trate.
+
+Se pueden usar los listeners de dos formas:
+
+* Si el testplan se ejecuta desde la interfaz GUI, muestran en tiempo real el procesamiento de las peticiones que realizan los samplers. Así por ejemplo, el listener View Results Tree muestra los samplers en el orden en que se ejecutan, y para cada uno de ellos se puede visualizar los datos de la petición realizada y la respuesta de la aplicación (muy util para depurar un testplan mientras se construye). Otro ejemplo: el listener Graph Results muestra en forma de gráfica los tiempos de respuesta de la aplicación objetivo.
+
+* Una vez ejecutado el testplan, si se ha generado el fichero sample result, este se puede cargar en el campo Filename: de un listener (por ejemplo creando un plan vacío que solo contenga el listener que nos interesa, o creando el componente listener que nos interesa en el componente Workbench de la interfaz GUI). Al hacer esto, el listener mostrará el resultado de procesar el fichero en un determinado formato.
+
+**Nota:** Esta última es la forma como se recomienda trabajar en la ejecución de pruebas de rendimiento. Resumiendo, Generar el fichero sample result en formato CSV, vía opción -l de la línea de comando o vía un listener global del tipo Simple Data Writer.
+Una vez ejecutada la prueba de rendimiento, cargar el fichero result sample generado en uno o varios de los listeners que nos muestren las medidas de rendimiento que queremos obtener.
