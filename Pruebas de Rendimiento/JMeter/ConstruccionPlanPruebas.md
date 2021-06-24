@@ -104,9 +104,7 @@ Reglas de ámbito y orden de ejecución:
 
 Veamos el siguiente ejemplo poara ilustrar los conceptos anteriores:
 
-IMAGENNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNn
-
-
+![](imagenes/scoping3.png)
 
 Este ejemplo es un testplan con un sólo Thread Group. Hay cinco samplers (de nombres One, Two, Three, Four y Five). Hay dos logic controlers, de tipo Simple Controler, con este mismo nombre. Los controlers de este tipo solo agrupan, no alteran el orden de ejecución, por lo que el orden en que se ejecutan los samplers es de arriba a abajo: One, Two, Three, Four y Five.
 
@@ -213,3 +211,182 @@ En el enlace [Recording Tests](https://jmeter.apache.org/usermanual/jmeter_proxy
 En el apartado [HTTP Proxy Server](https://jmeter.apache.org/usermanual/component_reference.html#HTTP_Proxy_Server) del manual de usuario puede encontrarse la documentación de referencia de este componente.
 
 En versiones de JMeter anteriores a la 2.4, el HTTP Proxy Server no podía capturar peticiones HTTPS, por lo que cuando la aplicación a testear utilizaba este protocolo, se requería otra herramienta como Badboy© (que si puede capturar peticiones HTTPS) para generar los samplers HTTP. En la versión actual de JMeter (2.4) no existe esta limitación. Aún así, el tutorial mencionado más arriba está sin actualizar, por lo que sigue dando la referencia de Badboy© cuando el protocolo es HTTPS.
+
+### Construir planes configurables y mantenibles (propiedades, variables y funciones)
+
+Propiedades, variables y funciones son conceptos relacionados en JMeter, y se utilizan para hacer que el testplan sea más mantenible y configurable.
+
+Las propiedades y las variables se explican en el manual de usuario de JMeter en el apartado [Properties and Variables](https://jmeter.apache.org/usermanual/test_plan.html#properties), y las funciones en el apartado [Functions](https://jmeter.apache.org/usermanual/functions.html).
+
+Para construir un testplan configurable es necesario el uso de propiedades ,variables y funciones. El contruir planes de test que sean configurables es una buena práctica recomendada.
+
+Tanto las propiedades como las variables son valores, con un nombre asignado, que se mantienen en memoria durante la ejecución de JMeter, pero ambas se diferencian en la forma en que se crean y en el ámbito.
+
+Las propiedades para JMeter son lo mismo que entendemos por propiedades en cualquier aplicación Java. En el caso de JMeter, las propiedades se crean de dos formas:
+
+* Especificándolas en el fichero jmeter.properties y los referenciados por éste (user.propertiers, system.properties, ...).
+
+* Especificándolas en la línea de comando al llamar a JMeter, con el modificador -q, -J, -G, -D (referencia: manual de usuario de JMeter, apdo. 2.4.5 Overriding Properties Via The Command Line).
+
+**NOTA:** Durante la ejecución de JMeter en modo GUI, se pueden ver las propiedades definidas en el proceso de JMeter con el elemento (componente) del workbench Non-Test Elements/Property Display.
+
+
+Las variables son también valores con un nombre asignado, que se crean de alguna de estas formas:
+
+* Especificándolas en el control panel del test plan (User Defined Variables,o UDV en adelante).
+* Especificándolas en el componente "User Defined Variables" (Config Element).
+* Con el componente "User Parameters" (Pre-Processor).
+* Con el componente "Configuracion del CSV Dataset" (Config Element).
+
+Determinadas funciones pueden crear variables (veremos cómo más adelante al hablar de funciones).
+
+Propiedades y variables se diferencian en el ámbito, esto se explica en el subapartado Ambito.
+
+**Referenciar propiedades y variables**
+
+Si se ha creado una variable en un test plan, podemos referirnos a su valor con la sintaxis:
+
+```
+${NOMBRE_VARIABLE}
+```
+
+Así por ejemplo, si una variable de nombre HOST vale 127.0.0.1, en todos aquellos lugares del test plan (por ejemplo en campos del panel de control de un componente), donde se utilice la expresión ${HOST}, ésta se sustituirá por la cadena 127.0.0.1 .
+
+Esto se utiliza para hacer el testplan más mantenible y configurable.
+
+Las propiedades NO se pueden referenciar con la misma sintaxis que las variables, es decir, si user.dir es una propiedad, la sintaxis ${user.dir} NO sustituye la expresión por el valor de la propiedad. Sin embargo, se pueden usar las funciones property y P para obtener el valor de una propiedad (hablaremos más adelante de estas funciones).
+
+**Ambito**
+
+Además de en la forma en que se hace referencia a su valor, las propiedades y las variables se diferencian en el ámbito:
+
+* Las propiedades son globales a JMeter (se definen en la JVM), por tanto, una propiedad tiene el mismo valor para todos los threads.
+
+* Las variables son locales a cada thread: si una variable se cambia (veremos como al hablar de las funciones), SOLO se cambia la copia de la variable para el thread en el que se ha hecho el cambio. El resto de threads siguen teniendo el mismo valor para la variable.
+
+Nota: hemos dicho A CADA THREAD, NO A CADA GRUPO DE THREADS (Thread Group).
+
+Por ejemplo, si la propiedad user.dir tiene el valor /home/ecastilla, TIENE ESE VALOR EN TODOS Y CADA UNO DE LOS THREADS que se creen durante la ejecución del testplan.
+
+Si una variable HOST se define con un componente User Defined Variables de un Thread Group, de 2 threads, con el valor 127.0.0.1, y uno de los threads cambia su valor por 192.168.2.10, el valor de la variable sólo ha cambiado para ese thread, para el otro sigue valiendo 127.0.0.1.
+
+Importante saber que las UDV especificadas en el control panel del test plan o en un componente User Defined Variables tienen el mismo comportamiento (nos referiremos a ellas como variables UDV): se crean AL PRINCIPIO DE LA EJECUCION DEL TESTPLAN CON EL VALOR QUE SE ESPECIFIQUE (esto tiene varias implicaciones como veremos a continuación). Posteriormente cada thread creado durante la ejecución del testplan recibe una copia de cada una de esas variables, inicializada cada una con el valor que se haya especificado.
+
+Implicaciones de lo anterior:
+
+* En el control panel del testplan no podemos referirnos (con la sintaxis ${NOMBRE_VARIABLE}), a variables UDV definidas en el mismo panel ni en un componente Used Defined Variables.
+
+* Si una variable UDV se especifica con diferentes valores en varios componentes User Defined Variables, o una variable UDV especificada en el control panel del testplan se redefine en uno o varios componentes User Defined Variables, entonces el valor con el que se inicializa la variable es el último asignado según el orden de aparicion en el plan.
+
+* Si se necesita definir una variable UDV, utilizando otra(s), como parte del nombre o del valor, crear un componente User Defined Variable, en el que una o varias de las variables hagan referencia a otras UDV, por ejemplo definidas en el control panel del testplan.
+
+* En la definición de una variable UDV no se puede hacer referencia a otra variable que se crea durante la ejecución del testplan, porque en el momento en que la variable UDV se crea, aquella no existe todavía.
+
+* Si en la definición de una UDV se utiliza una función que devuelve un valor diferente cada vez que es llamada, solo el valor que devuelve la primera llamada a la función se utilizará en la definición de la variable, porque la función solo se la llamará una vez al principio del testplan.
+
+* Un thread puede cambiar el valor de una variable UDV (que a partir de entonces tendrá un valor diferente al de los otros threads), pero como norma general, se recomienda usar para estas cosas variables creadas en el thread, y dejar las UDV para guardar valores que no cambian durante una misma ejecución del testplan. Para definir variables durante la ejecución de un testplan (no al principio como sucede con las UDV), usese el componente User Parameters o Configuracion del CSV Dataset.
+
+* Aunque no es obligatorio con el componente User Defined Variables, pero por simplicidad se aconseja que las UDV se coloquen solo al principio del Thread Group o en el panel de control del testplan.
+
+* Las propiedades que existen en una ejecución de JMeter se pueden ver con un elemento: Non-Test Elements / Property Display (específico del Workbench). Con este elemento se pueden ver todas las propiedades definidas en una ejecución de la JVM, tanto las del sistema como las específicas de JMeter.
+
+**Funciones**
+
+En JMeter existe un conjunto de funciones predefinidas, que pueden ser llamadas en casi cualquier sitio del testplan. En todos los sitios del testplan donde se puede especificar una variable, se puede especificar una llamada a función, por ejemplo, en los campos del panel de control de un componente.
+
+La sintaxis de llamada a una función es:
+
+```
+${__NOMBRE_FUNCION(ARG1, ARG2, ...)}
+```
+
+Donde NOMBRE_FUNCION es el nombre de la funcion (nos referimos a un nombre de función sin escribir los dos guiones del prefijo, ya asumimos que forman parte del nombre).
+
+La lista de argumentos y el orden en que estos se especifican depende cada funcion concreta. Véase en el manual de usuario de JMeter, apdo. [Functions](https://jmeter.apache.org/usermanual/functions.html) la referencia de todas las funciones predefinidas de JMeter.
+
+Ejemplos de llamadas a funciones:
+
+```
+${__threadNum}
+${__Random(1, 10)}
+${__time(EEE, d MMM yyyy)}
+```
+
+Los nombres de funciones empiezan siempre por __ (dos underlines), para distinguirlas de los nombres de variables.
+
+Cosas importantes que hay que saber sobre las funciones:
+
+* Si en la llamada a una función no hay que especificar argumentos, no es necesario especificar los paréntesis.
+
+* Si un argumento contiene un caracter "," (como en la funcion time anterior), hay que anteponerle un caracter de escape (\) para indicar a JMeter que NO lo interprete como un separador de argumentos.
+
+* Para JMeter las funciones y las variables UDV (las que se definen en el control panel del test plan o en el componente "User Defined Variables") son lo mismo. Esto es lógico si observamos que la sintaxis para referenciar a una variable y para llamar a una funcion son la misma (nombre de la variable o funcion entre ${ y }).
+
+* Si una funcion inexistente o una variable no definida son referenciadas, JMeter no genera ningún error, y devuelve el propio texto de la referencia. Por ejemplo, si la variable o funcion NOMBRE no está definida, y en algún campo del testplan se especifica la referencia ${NOMBRE}, JMeter NO sustituye nada, o lo que es lo mismo, devuelve ${NOMBRE} (sin las comillas) en el lugar de la referencia.
+
+* Si se define una variable UDF con el mismo nombre que una funcion, incluidos los dos guines de prefijo, entonces la variable sobreescribe a la funcion, lo que significa que como la sistaxis de referenciacion es la misma para variables y funciones, cuando se utilice, se sustituirá por el valor de la variable.
+
+Funciones importantes:
+
+*property, P*
+
+Obtener el valor de una propiedad. Véase "Guardar un valor de propiedad en una variable".
+
+*setProperty*
+
+Asignar un valor a una propiedad durante la ejecución del testplan. Véase Paso de valores entre threads y grupos de threads.
+
+*log, logn*
+
+Escribe en el log el mensaje que se especifique. Para asegurar que el mensaje es mostrado en la pantalla durante la ejecución del testplan, especificar OUT o ERR como segundo argumento. La funcion logn devuelve la cadena vacía, lo que significa que se puede utilizar en cualquier lugar de un campo de información del testplan sin afectarlo. Esta característica se pueden utilizar para tracear variables.
+
+*V*
+
+Las referencias a variables no pueden ser anidadas. Por ejemplo, ${Var${N}} no funciona. Para poder hacer esto existe la función V: la funcion V recibe como argumento un nombre de variable y devuelve el valor de esa variable (hasta aqui igual que usar ${VAR}). La peculiaridad es que como parte del nombre de la variable se puede especificar una referencia a variable. Por ejemplo:
+
+```
+${__V(VAR${N})}
+```
+
+Si N vale 1 devolverá el valor de VAR1, sin N vale 2 devolverá el valor de VAR2, ...
+
+*eval, evalVa*
+
+Evalúa una expresión de string, permitiendo interpolar referencias a variables y funciones en la string. La diferencia entre ambas es que eval recibe como argumento una expresión de string (nombre de variable o referencia a variable con ${ y }), mientras que evalVar recibe como argumento sólo un nombre de variable.
+
+*split*
+
+Trocea una expresión de string según un delimitador que se le pase, creando una variable con un sufijo distinto para cada item de la expresión.
+
+**JMeter Function Helper Dialog**
+
+En la interfaz GUI, la opción Options / Function Helper Dialog muestra un cuadro de diálogo que permite ver los parámetros que recibe una función, y construir la llamada a ésta. Una vez construido el texto de la llama con ayuda del cuadro de diálogo, éste se puede copir y pegarlo donde se necesite en el plan de pruebas.
+
+**Guardar un valor de propiedad en una variable**
+
+Para esto existen las funciones property y P.
+
+La diferencia entre ambas es que la función "P" no permite asignar la propiedad a una variable, solo devuelve el valor de aquella al referenciarla, mientras que la funcion "property" si permite la asignación a una variable en la misma llamada a función. Por ejemplo:
+
+```
+${__property(abcd,ABCD,atod)}
+```
+
+Asigna el valor de la propiedad abcd a la variable ABCD, y si no está definida esa propiedad, le asigna el valor atod
+
+A pesar de esto, la funcion P se puede usar para especificar en un campo el valor de una variable.
+
+**Paso de valores entre threads y grupos de threads**
+
+Se hace aprovechando la característica de JMeter de que las propiedades son globales a todos los threads (de todos los grupos): basta asignar a una propiedad el valor de la variable que se quiere compartir entre los threads. Para hacer esto existe la funcion setProperty.
+
+**Componentes relacionados con variables**
+
+User Defined Variables (Config Element)
+
+User Parameters (Pre Processor)
+
+Configuracion del CSV data set (Config Element)
+
+JDBC Connection Configuration / JDBC Request
+Sampler / Debug Sampler
