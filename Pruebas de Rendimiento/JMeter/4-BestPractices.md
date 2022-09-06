@@ -1,5 +1,7 @@
 # Buenas practicas JMETER	📚
 
+https://jmeter.apache.org/usermanual/best-practices.html
+
 ## Utilice siempre la última versión de JMeter 1️⃣
 
 El rendimiento de JMeter se mejora constantemente, por lo que se recomienda encarecidamente a los usuarios que utilicen la versión más actualizada.
