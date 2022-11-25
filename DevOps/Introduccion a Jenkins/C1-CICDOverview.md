@@ -11,7 +11,7 @@ Todas las empresas de software necesitan entregar software de manera oportuna, c
 Enunciados de nivel 2 podrían ser creados por proveedores del curso en el futuro.
 El desarrollo de software sigue un flujo, comenzando con la identificación de nuevas funciones, la planificación, el desarrollo real, la confirmación de los cambios en el código fuente, la ejecución de compilaciones y pruebas (unitarios, integración, funcional, aceptación, etc.) y la despliegue en producción.
 
-![](imagenes/imagen1.png)
+![a](imagenes/imagen1.png)
 
 Con un enfoque tradicional de entrega de software en cascada, los desarrolladores podrían trabajar de forma independiente durante mucho tiempo. No tendrían ni idea de cuántos problemas se encontrarían durante la fase de integración.
 
