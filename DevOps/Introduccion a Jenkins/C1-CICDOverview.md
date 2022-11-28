@@ -11,7 +11,7 @@ Todas las empresas de software necesitan entregar software de manera oportuna, c
 Enunciados de nivel 2 podrían ser creados por proveedores del curso en el futuro.
 El desarrollo de software sigue un flujo, comenzando con la identificación de nuevas funciones, la planificación, el desarrollo real, la confirmación de los cambios en el código fuente, la ejecución de compilaciones y pruebas (unitarios, integración, funcional, aceptación, etc.) y la despliegue en producción.
 
-![](imagenes/imagen1.png)
+![](./imagenes/imagen1.PNG)
 
 Con un enfoque tradicional de entrega de software en cascada, los desarrolladores podrían trabajar de forma independiente durante mucho tiempo. No tendrían ni idea de cuántos problemas se encontrarían durante la fase de integración.
 
@@ -27,7 +27,7 @@ Según Martín Fowler,
 
 > *"La integración continua (CI) es una práctica de desarrollo de software en la que los miembros de un equipo integran su trabajo con frecuencia; por lo general, cada persona se integra al menos diariamente, lo que lleva a múltiples integraciones por día. Cada integración se verifica mediante una compilación automatizada (incluida la prueba) para detectar errores de integración lo antes posible".*
 
-![](imagenes/imagen2.png)
+![](imagenes/imagen2.PNG)
 
 Para implementar la Integración Continua, necesitará:
 
@@ -87,7 +87,7 @@ Si bien Continuous Delivery le brinda la capacidad de desplegar en producción c
 
 Sin embargo, Continuous Deployment es una forma automatizada de desplegar sus versiones en producción. Debe realizar una entrega continua para poder realizar un despliegue automatizado. Empresas como Netflix, Amazon, Google y Facebook despliegan automáticamente a producción varias veces al día.
 
-![](imagenes/imagen3.png)
+![](imagenes/imagen3.PNG)
 
 Ya sea que esté realizando una  Continuous Delivery o Continuous Deployment, ya sabe que necesita una pipeline de despliegue. A continuación, echemos un vistazo a lo que es la canalización de despliegue.
 
@@ -97,7 +97,7 @@ Las canalizaciones de despliegue (o pipelines de entrega continua) son la piedra
 
 El uso de canalizaciones de implementación continua ofrece numerosos beneficios. Una canalización automatizada permite que todas las partes interesadas supervisen el progreso, elimina la sobrecarga de todo el trabajo manual, proporciona comentarios rápidos y, lo que es más importante, genera confianza en la calidad del código.
 
-![](imagenes/imagen4.png)
+![](imagenes/imagen4.PNG)
 
 La ejecución de la tubería de despliegue comienza con un desarrollador que comittea el cambio del código fuente en un repositorio de control de versiones. El servidor de CI detecta la nueva confirmación, compila el código y ejecuta pruebas unitarias. La siguiente etapa es desplegar los artefactos (archivos generados a partir de una compilación) en un entorno de ensayo o de prueba de funciones en el que se ejecutan pruebas funcionales, de regresión y de aceptación adicionales. Una vez que todas las pruebas sean exitosas, estará listo para desplegar en producción. En caso de falla durante cualquier etapa, el flujo de trabajo se detiene y se envía una respuesta inmediata al desarrollador.
 
@@ -133,4 +133,4 @@ Como puede ver, solo hay dos opciones gratuitas, GitLab CI/CD y Jenkins. Sin emb
 
 Jenkins se puede instalar en cualquier sistema operativo local o en la nube. Su sólida integración con muchas otras herramientas de terceros lo convierte en una excelente opción.
 
-![](imagenes/imagen5.png)
+![](imagenes/imagen5.PNG)
