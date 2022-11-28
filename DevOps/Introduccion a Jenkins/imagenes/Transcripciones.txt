@@ -1,0 +1,28 @@
+Jenkins project has two release lines, long-term support and weekly.
+In this video, I will demonstrate how to install the latest long-term support release of Jenkins on an Ubuntu 20.4 server.
+Be advised that the installation steps may vary for the other operating systems.
+The entire installation process will be performed in a terminal.
+Let's go ahead and get started.
+I'm logged into the Ubuntu server as root.
+One of the prerequisites for installing Jenkins is Java.
+Let's go ahead and install Java version 11.
+Java has been successfully installed.
+We are now ready to install Jenkins.
+We will first import the GPG key for Jenkins repo.
+Next, we'll add the repo to the list of Debian sources.
+Update package index.
+And install Jenkins package.
+Next, we will verify the Jenkins UI.
+On my browser I will enter Jenkins URL.
+It is time to unlock Jenkins.
+I will need to retrieve the password from the Jenkins server.
+Back to terminal.
+I will use the 'cat' command.
+Copy the password.
+Click "Continue".
+Install suggested plugins.
+Create first admin user.
+Click "Save" and "Continue".
+My Jenkins URL looks good.
+I'll go ahead and click "Start using Jenkins".
+And this is the Jenkins Dashboard.
