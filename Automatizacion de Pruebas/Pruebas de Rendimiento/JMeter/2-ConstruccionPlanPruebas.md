@@ -342,7 +342,7 @@ Escribe en el log el mensaje que se especifique. Para asegurar que el mensaje es
 
 *V*
 
-Las referencias a variables no pueden ser anidadas. Por ejemplo, ${Var${N}} no funciona. Para poder hacer esto existe la función V: la funcion V recibe como argumento un nombre de variable y devuelve el valor de esa variable (hasta aqui igual que usar ${VAR}). La peculiaridad es que como parte del nombre de la variable se puede especificar una referencia a variable. Por ejemplo:
+Las referencias a variables no pueden ser anidadas. Por ejemplo, ```${Var${N}}``` no funciona. Para poder hacer esto existe la función V: la funcion V recibe como argumento un nombre de variable y devuelve el valor de esa variable (hasta aqui igual que usar ${VAR}). La peculiaridad es que como parte del nombre de la variable se puede especificar una referencia a variable. Por ejemplo:
 
 ```
 ${__V(VAR${N})}
