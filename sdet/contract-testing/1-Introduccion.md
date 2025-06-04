@@ -64,7 +64,7 @@ Este enfoque tiene sentido cuando no se tiene (o no se quiere tener) control sob
 
 ---
 
-# Flujo de trabajo
+# 🧪 Flujo de trabajo
 
 ## Consumer Driven
 
@@ -100,7 +100,7 @@ Este enfoque tiene sentido cuando no se tiene (o no se quiere tener) control sob
 
 - PactFlow verificará la compatibilidad entre los contratos publicados y la OAS.
 
-# Codificación
+# 🛠️ Codificación
 
 ## Consumer Driven
 
